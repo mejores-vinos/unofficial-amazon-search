@@ -47,8 +47,12 @@ function queryToRequest(query: string, page?: number, category?: string, tld: st
   const queryParams: string[] = [
     `k=${encodeURIComponent(query)}`,
     page ? `ref=sr_pg_${page}` : 'nb_sb_noss',
-    category ? `i=${category}`: null,
   ];
+
+  if (category) {
+    queryParams.push(`i=${category}`)
+  }
+
   if (page && page > 1) queryParams.push(`page=${page}`)
 
   return `https://www.amazon.${tld}/s?${queryParams.join('&')}`;
