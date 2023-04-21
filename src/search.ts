@@ -43,18 +43,19 @@ function extractResults(elem: ParentNode): AmazonSearchResult[] {
   });
 }
 
-function queryToRequest(query: string, page?: number): string {
+function queryToRequest(query: string, page?: number, category?: string): string {
   const queryParams: string[] = [
     `k=${encodeURIComponent(query)}`,
     page ? `ref=sr_pg_${page}` : 'nb_sb_noss',
+    category ? `i=${category}`: null,
   ];
   if (page && page > 1) queryParams.push(`page=${page}`)
 
   return `https://www.amazon.com/s?${queryParams.join('&')}`;
 }
 
-function queryToProxiedRequest(query: string, page?: number): string {
-  let url = queryToRequest(query, page);
+function queryToProxiedRequest(query: string, page?: number, category?: string): string {
+  let url = queryToRequest(query, page, category);
   return 'http://api.allorigins.win/get?url=' + encodeURIComponent(url);
 }
 
@@ -73,6 +74,7 @@ export interface SearchData {
 export interface SearchConfig {
   page: number;
   includeSponsoredResults: boolean;
+  category?: string;
 }
 
 /**
@@ -97,12 +99,12 @@ async function searchAmazon(
   let documentNode: ParentNode;
 
   if (isBrowser) {
-    const resp: Response = await fetch(queryToProxiedRequest(query, config?.page));
+    const resp: Response = await fetch(queryToProxiedRequest(query, config?.page, config?.category));
     const body: AllOriginsResponse = await resp.json();
     const pageHtml = body.contents;
     documentNode = htmlStringToDOMElement(pageHtml);
   } else {
-    const resp: Response = await fetch(queryToRequest(query, config?.page));
+    const resp: Response = await fetch(queryToRequest(query, config?.page, config?.category));
     const pageHtml = await resp.text();
     const virtualDOM = new JSDOM(pageHtml);
     documentNode = virtualDOM.window.document;
