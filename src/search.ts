@@ -49,11 +49,11 @@ function queryToRequest(query: string, page?: number, category?: string, tld: st
     page ? `ref=sr_pg_${page}` : 'nb_sb_noss',
   ];
 
-  if (category) {
-    queryParams.push(`i=${category}`)
-  }
-
   if (page && page > 1) queryParams.push(`page=${page}`)
+
+  if (category) {
+    queryParams.push(`i=${category}`);
+  }
 
   return `https://www.amazon.${tld}/s?${queryParams.join('&')}`;
 }
