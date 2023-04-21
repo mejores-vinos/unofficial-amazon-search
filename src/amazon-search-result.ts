@@ -81,7 +81,7 @@ export default class AmazonSearchResult {
     }
   }
 
-  constructor(block: Element, tld) {
+  constructor(block: Element, tld: string) {
     this.title = block.querySelector('h2')?.textContent?.trim() ?? '';
     this.imageUrl = block.querySelector('a img')?.getAttribute('src') ?? '';
     this.productUrl = block.querySelector('a')?.getAttribute('href') ?? '';
