@@ -23,14 +23,17 @@ interface Rating {
  * @property {boolean} sponsored - whether result is an ad
  */
 export default class AmazonSearchResult {
-  private static domain = 'https://www.amazon.com';
-
   title: string;
   productUrl: string;
   imageUrl: string;
   rating: Rating = {score: null, outOf: null};
   prices: Price[] = [];
   sponsored = false;
+  tld: string;
+
+  private get domain() {
+    return `https://www.amazon.${this.tld}`
+  };
 
   private static extractIsSponsored(block: Element): boolean {
     const sponsorBlock = block.querySelector('.s-sponsored-label-info-icon');
@@ -78,26 +81,27 @@ export default class AmazonSearchResult {
     }
   }
 
-  constructor(block: Element) {
+  constructor(block: Element, tld) {
     this.title = block.querySelector('h2')?.textContent?.trim() ?? '';
     this.imageUrl = block.querySelector('a img')?.getAttribute('src') ?? '';
     this.productUrl = block.querySelector('a')?.getAttribute('href') ?? '';
     this.rating = AmazonSearchResult.extractRating(block);
     this.prices = AmazonSearchResult.extractPrices(block);
     this.sponsored = AmazonSearchResult.extractIsSponsored(block);
+    this.tld = tld;
   }
 
 
   get fullProductUrl(): string {
-    return AmazonSearchResult.domain + this.productUrl;
+    return this.domain + this.productUrl;
   }
 
   set fullProductUrl(productUrl: string) {
-    if (!productUrl.startsWith(AmazonSearchResult.domain)) {
-      throw new Error(`Values assigned to fullProductUrl must start with ${AmazonSearchResult.domain}, assign domainless paths to productUrl`);
+    if (!productUrl.startsWith(this.domain)) {
+      throw new Error(`Values assigned to fullProductUrl must start with ${this.domain}, assign domainless paths to productUrl`);
     }
 
-    this.productUrl = productUrl.substring(AmazonSearchResult.domain.length);
+    this.productUrl = productUrl.substring(this.domain.length);
   }
 
 }
